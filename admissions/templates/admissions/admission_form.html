@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admission Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body p-5">
+                        <h1 class="card-title text-center mb-4">College Admission Form</h1>
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">{{ form.college.label_tag }} {{ form.college }}</div>
+                            <div class="mb-3">{{ form.samarth_registration_no.label_tag }} {{ form.samarth_registration_no }}</div>
+                            <div class="mb-3">{{ form.full_name.label_tag }} {{ form.full_name }}</div>
+                            <div class="mb-3">{{ form.father_name.label_tag }} {{ form.father_name }}</div>
+                            <div class="mb-3">{{ form.mother_name.label_tag }} {{ form.mother_name }}</div>
+                            <div class="mb-3">{{ form.date_of_birth.label_tag }} {{ form.date_of_birth }}</div>
+                            <div class="mb-3">{{ form.mobile_number.label_tag }} {{ form.mobile_number }}</div>
+                            <div class="mb-3">{{ form.category.label_tag }} {{ form.category }}</div>
+                            <div class="mb-3">{{ form.course_enrolled.label_tag }} {{ form.course_enrolled }}</div>
+                            
+                            <hr class="my-4">
+                            
+                            <div id="subjects-container" style="display: none;">
+                                <div class="mb-3">
+                                    {{ form.major_subjects.label_tag }}
+                                    <div class="border rounded p-2 small">
+                                        {{ form.major_subjects }}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    {{ form.minor_subjects.label_tag }}
+                                    <div class="border rounded p-2 small">
+                                        {{ form.minor_subjects }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Submit Application</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Get the data passed from the Django view
+            const coursesData = JSON.parse('{{ courses_data|safe }}');
+            
+            const courseSelect = document.getElementById('id_course_enrolled'); // This might need adjustment
+            const subjectsContainer = document.getElementById('subjects-container');
+
+            function toggleSubjects() {
+                // Find the text of the selected course
+                const selectedCourseName = courseSelect.value;
+
+                // For now, we will assume a simple show/hide logic.
+                // A better logic would be to match course ID.
+                // We'll improve this if needed. Let's start with a simple text match.
+                
+                if (selectedCourseName.toLowerCase().includes('b.a') || selectedCourseName.toLowerCase().includes('b.sc')) {
+                    subjectsContainer.style.display = 'block'; // Show
+                } else {
+                    subjectsContainer.style.display = 'none'; // Hide
+                }
+            }
+
+            // Add event listener
+            courseSelect.addEventListener('change', toggleSubjects);
+
+            // Run on page load as well
+            toggleSubjects();
+        </script>
+    </body>
+    </html>
