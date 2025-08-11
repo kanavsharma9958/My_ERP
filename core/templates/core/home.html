@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to College ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .hero-section {
+            padding: 6rem 0;
+            background-color: #e9ecef;
+        }
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .card-link .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4">Welcome to Your College ERP</h1>
+            <p class="lead text-muted">A one-stop solution for managing all academic and administrative tasks.</p>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row text-center">
+
+            <div class="col-lg-4 mb-4">
+                <a href="{% url 'admission_form' %}" class="card-link">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <h3 class="card-title text-primary">Apply for Admission</h3>
+                            <p class="card-text">New students can fill out the admission form and upload documents here.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <a href="{% url 'check_fee_status' %}" class="card-link">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <h3 class="card-title text-success">Student Portal</h3>
+                            <p class="card-text">Check your fee status, attendance, and exam results using your Roll Number.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <a href="{% url 'faculty_login' %}" class="card-link">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <h3 class="card-title text-info">Faculty & Staff Login</h3>
+                            <p class="card-text">Faculty members can log in here to manage attendance and marks.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        {% if notices %}
+        <div class="row mt-5 justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h4 class="my-2">Latest News & Notices</h4>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for notice in notices %}
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ notice.title }}</h6>
+                                    <small class="text-muted">{{ notice.publish_date|date:"d M, Y" }}</small>
+                                </div>
+                                <p class="mb-1 small text-muted">{{ notice.content|truncatewords:20 }}</p>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</body>
+</html>

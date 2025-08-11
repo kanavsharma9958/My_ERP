@@ -12,35 +12,24 @@
                 <div class="card shadow-sm">
                     <div class="card-body p-5">
                         <h1 class="card-title text-center mb-4">College Admission Form</h1>
-                        <form method="post">
+                        <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             
                             <div class="mb-3">{{ form.college.label_tag }} {{ form.college }}</div>
+                            <div class="mb-3">{{ form.course.label_tag }} {{ form.course }}</div>
                             <div class="mb-3">{{ form.samarth_registration_no.label_tag }} {{ form.samarth_registration_no }}</div>
                             <div class="mb-3">{{ form.full_name.label_tag }} {{ form.full_name }}</div>
                             <div class="mb-3">{{ form.father_name.label_tag }} {{ form.father_name }}</div>
                             <div class="mb-3">{{ form.mother_name.label_tag }} {{ form.mother_name }}</div>
                             <div class="mb-3">{{ form.date_of_birth.label_tag }} {{ form.date_of_birth }}</div>
-                            <div class="mb-3">{{ form.mobile_number.label_tag }} {{ form.mobile_number }}</div>
+                            <div class="mb-3">{{ form.contact_number.label_tag }} {{ form.contact_number }}</div>
+                            <div class="mb-3">{{ form.whatsapp_number.label_tag }} {{ form.whatsapp_number }}</div>
                             <div class="mb-3">{{ form.category.label_tag }} {{ form.category }}</div>
-                            <div class="mb-3">{{ form.course_enrolled.label_tag }} {{ form.course_enrolled }}</div>
                             
                             <hr class="my-4">
                             
-                            <div id="subjects-container" style="display: none;">
-                                <div class="mb-3">
-                                    {{ form.major_subjects.label_tag }}
-                                    <div class="border rounded p-2 small">
-                                        {{ form.major_subjects }}
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.minor_subjects.label_tag }}
-                                    <div class="border rounded p-2 small">
-                                        {{ form.minor_subjects }}
-                                    </div>
-                                </div>
-                            </div>
+                            <div id="document-fields-container"></div>
+                            <div id="subject-fields-container"></div>
 
                             <div class="d-grid mt-4">
                                 <button type="submit" class="btn btn-primary btn-lg">Submit Application</button>
@@ -52,32 +41,94 @@
         </div>
 
         <script>
-            // Get the data passed from the Django view
-            const coursesData = JSON.parse('{{ courses_data|safe }}');
-            
-            const courseSelect = document.getElementById('id_course_enrolled'); // This might need adjustment
-            const subjectsContainer = document.getElementById('subjects-container');
+            // This entire script section remains unchanged from the last correct version.
+            const collegeSelect = document.getElementById('id_college');
+            const courseSelect = document.getElementById('id_course');
+            const subjectContainer = document.getElementById('subject-fields-container');
+            const docContainer = document.getElementById('document-fields-container');
+            const subjectCoursesData = JSON.parse('{{ courses_data|safe }}');
 
-            function toggleSubjects() {
-                // Find the text of the selected course
-                const selectedCourseName = courseSelect.value;
+            async function updateCourseOptions() {
+                const collegeId = collegeSelect.value;
+                courseSelect.innerHTML = '<option value="">--- Loading Courses... ---</option>';
+                subjectContainer.innerHTML = '';
+                docContainer.innerHTML = '';
 
-                // For now, we will assume a simple show/hide logic.
-                // A better logic would be to match course ID.
-                // We'll improve this if needed. Let's start with a simple text match.
-                
-                if (selectedCourseName.toLowerCase().includes('b.a') || selectedCourseName.toLowerCase().includes('b.sc')) {
-                    subjectsContainer.style.display = 'block'; // Show
-                } else {
-                    subjectsContainer.style.display = 'none'; // Hide
+                if (!collegeId) {
+                    courseSelect.innerHTML = '<option value="">--- Select a College First ---</option>';
+                    return;
+                }
+
+                const response = await fetch(`/admissions/ajax/get-courses-for-college/${collegeId}/`);
+                const data = await response.json();
+
+                courseSelect.innerHTML = '<option value="">--- Select a Course ---</option>';
+                if (data.courses) {
+                    data.courses.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.id;
+                        option.innerText = course.name;
+                        courseSelect.appendChild(option);
+                    });
                 }
             }
 
-            // Add event listener
-            courseSelect.addEventListener('change', toggleSubjects);
+            async function updateDynamicFields() {
+                const courseId = courseSelect.value;
+                docContainer.innerHTML = '';
+                subjectContainer.innerHTML = '';
 
-            // Run on page load as well
-            toggleSubjects();
+                if (!courseId) return;
+
+                // Documents Fetch
+                const docResponse = await fetch(`/admissions/ajax/get-required-documents/${courseId}/`);
+                const docData = await docResponse.json();
+                if (docData.documents && docData.documents.length > 0) {
+                    let docHtml = '<h4 class="mb-3">Upload Required Documents</h4>';
+                    docData.documents.forEach(doc => {
+                        docHtml += `<div class="mb-3"><label class="form-label">${doc.name}${doc.is_required ? ' *' : ''}</label><input type="file" class="form-control" name="document_${doc.id}" ${doc.is_required ? 'required' : ''}></div>`;
+                    });
+                    docContainer.innerHTML = docHtml;
+                }
+
+                // Subjects Fetch
+                const selectionType = subjectCoursesData[courseId];
+                if (selectionType === 'MAJOR_MINOR') {
+                    const subjectResponse = await fetch(`/admissions/ajax/get-subjects-for-course/${courseId}/`);
+                    const subjectData = await subjectResponse.json();
+                    if (subjectData.subjects && subjectData.subjects.length > 0) {
+                        let majorHtml = '<div class="mb-3"><label class="form-label">Major Subjects</label><div class="border rounded p-2 small">';
+                        let minorHtml = '<div class="mb-3"><label class="form-label">Minor Subjects</label><div class="border rounded p-2 small">';
+                        subjectData.subjects.forEach(subject => {
+                            majorHtml += `<div class="form-check"><input class="form-check-input" type="checkbox" name="major_subjects" value="${subject.id}" id="major_${subject.id}"><label class="form-check-label" for="major_${subject.id}">${subject.name}</label></div>`;
+                            minorHtml += `<div class="form-check"><input class="form-check-input" type="checkbox" name="minor_subjects" value="${subject.id}" id="minor_${subject.id}"><label class="form-check-label" for="minor_${subject.id}">${subject.name}</label></div>`;
+                        });
+                        majorHtml += '</div></div>';
+                        minorHtml += '</div></div>';
+                        subjectContainer.innerHTML = `<hr class="my-4"><h4 class="mb-3">Select Subjects</h4>${majorHtml}${minorHtml}`;
+                        addSyncLogicToCheckBoxes();
+                    }
+                }
+            }
+            
+            function addSyncLogicToCheckBoxes() {
+                const allCheckboxes = subjectContainer.querySelectorAll('input[type="checkbox"]');
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', event => {
+                        const clicked = event.target;
+                        const oppositeType = clicked.name === 'major_subjects' ? 'minor_subjects' : 'major_subjects';
+                        const oppositeCheckbox = document.querySelector(`input[name="${oppositeType}"][value="${clicked.value}"]`);
+                        if (oppositeCheckbox) oppositeCheckbox.disabled = clicked.checked;
+                    });
+                });
+            }
+
+            collegeSelect.addEventListener('change', async () => {
+                await updateCourseOptions();
+                await updateDynamicFields();
+            });
+
+            courseSelect.addEventListener('change', updateDynamicFields);
         </script>
     </body>
     </html>

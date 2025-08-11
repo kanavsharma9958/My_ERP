@@ -2,74 +2,139 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>College ID Card</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Student ID Card</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <style>
         body {
-            background-color: #dcdcdc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
+            background-color: #f0f2f5;
         }
         .id-card {
-            width: 3.5in;
-            height: 5in;
-            border-radius: 25px;
-            background: #fff;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            width: 320px;
+            height: 510px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 50px auto;
         }
-        .card-header { text-align: center; padding: 15px 10px; background-color: #0d6efd; color: white; }
-        .logo { width: 50px; height: 50px; margin: 0 auto 8px auto; border-radius: 50%; border: 2px solid white; }
-        .college-name { font-size: 13px; font-weight: 700; margin: 0; }
-        .card-body { display: flex; flex-direction: column; align-items: center; padding: 15px; flex-grow: 1; }
-        .photo-container { width: 105px; height: 125px; border: 2px solid #eee; border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
-        .photo { width: 100%; height: 100%; background-color: #e9ecef; display: block; }
-        .student-name { font-size: 18px; font-weight: 700; margin-top: 5px; color: #1f2937; text-align: center; }
-        .student-course { font-size: 15px; color: #555; font-weight: 500; margin-top: 0.5px; text-align: center; }
-        .details { font-size: 10px; width: 100%; margin-top: 10px; padding: 0 10px; }
-        .details p { margin: 3px 0; display: flex; }
-        .details strong { width: 90px; flex-shrink: 0; color: #333; }
-        .card-footer { text-align: center; padding: 10px; font-size: 9px; color: #6c757d; border-top: 1px solid #eee; }
-        .signature { border-top: 1px solid #999; width: 70%; margin: 5px auto 0 auto; padding-top: 3px; }
-
-        /* Styles for printing */
-        @media print {
-            body { background-color: #fff; display: block; }
-            .id-card { box-shadow: none; border: 1px solid #000; margin: 0; }
+        .id-card-header {
+            text-align: center;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .id-card-header img.logo {
+            max-width: 60px;
+            margin-bottom: 5px;
+        }
+        .id-card-header h5 {
+            margin: 0;
+            font-weight: 700;
+            color: #0d6efd;
+            font-size: 1.1rem;
+        }
+        .id-card-header p {
+            margin: 0;
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+        .photo-section {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .student-photo {
+            width: 120px;
+            height: 150px;
+            object-fit: cover;
+            border: 3px solid #dee2e6;
+            border-radius: 8px;
+            margin: 0 auto;
+        }
+        .photo-placeholder {
+            width: 120px;
+            height: 150px;
+            background-color: #e9ecef;
+            border: 2px dashed #ced4da;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+        .student-name {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #343a40;
+            margin-bottom: 15px;
+        }
+        .details-table {
+            font-size: 0.85rem;
+            width: 100%;
+        }
+        .details-table td {
+            padding: 4px 0;
+        }
+        .details-table .label {
+            font-weight: 600;
+            color: #495057;
+            width: 100px;
+        }
+        .id-card-footer {
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="id-card">
-        <div class="card-header">
+        <div class="id-card-header">
             {% if student.college.logo %}
-                <img src="{{ student.college.logo.url }}" alt="Logo" class="logo">
-            {% else %}
-                <div class="logo" style="background-color: #fff;"></div>
+                <img src="{{ student.college.logo.url }}" alt="College Logo" class="logo">
             {% endif %}
-            <h2 class="college-name">{{ student.college.name|upper }}</h2>
+            <h5>{{ student.college.name }}</h5>
+            <p>{{ student.college.address }}</p>
         </div>
-        <div class="card-body">
-            <div class="photo-container"><div class="photo"></div></div>
-            <p class="student-name">{{ student.full_name|upper }}</p>
-            <p class="student-course">{{ student.course_enrolled }}</p>
-            <div class="details">
-                <p><strong>Roll No:</strong> {{ student.roll_number }}</p>
-                <p><strong>Father's Name:</strong> {{ student.father_name }}</p>
-                <p><strong>Mobile No:</strong> {{ student.mobile_number }}</p>
-                <p><strong>D.O.B:</strong> {{ student.date_of_birth|date:"d-m-Y" }}</p>
+
+        <div class="photo-section">
+            {% if student_photo %}
+                <img src="{{ student_photo.url }}" alt="Student Photo" class="student-photo">
+            {% else %}
+                <div class="photo-placeholder">No Photo</div>
+            {% endif %}
+        </div>
+
+        <div class="student-name">
+            {{ student.full_name|upper }}
+        </div>
+
+        <table class="details-table">
+            <tbody>
+                <tr>
+                    <td class="label">Roll No:</td>
+                    <td>{{ student.roll_number }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Course:</td>
+                    <td>{{ student.course.name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Father's Name:</td>
+                    <td>{{ student.father_name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Mobile:</td>
+                    <td>{{ student.mobile_number }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="id-card-footer">
             </div>
-        </div>
-        <div class="card-footer">
-            <p class="signature">Principal's Signature</p>
-            <p class="mb-0">{{ student.college.address|default:"College Address Here" }}</p>
-        </div>
     </div>
 </body>
 </html>

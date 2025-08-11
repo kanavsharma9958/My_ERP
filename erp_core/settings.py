@@ -4,41 +4,38 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hfhz87*l7i(#twm+$th*mt-bmnn-!21w*g(lj06h1jxv&xzf1r'
-
-# ज़रूरी: यहाँ अपनी KEY डालें जो आपने Terminal से कॉपी की थी
-FIELD_ENCRYPTION_KEY = '[DcP1aXIU5XcUysAf7bj289DhhQZjWd-P2N-W-LebOmI=]'
+SECRET_KEY = 'django-insecure-m_y#1j7%h6e7_i)6-8j0%w^&@8vj&a*o7h*v(c%h0(g@p)y6p)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
-    # My Apps
-    'core',
-    'admissions',
-    'fees',
-    'academics',
-    'examinations',
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
     
-    # Third-party Apps
-    'encrypted_model_fields',
-    
-    # Django Apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third-party apps
+    'encrypted_model_fields',
+
+    # My apps
+    'core.apps.CoreConfig',
+    'academics.apps.AcademicsConfig',
+    'admissions.apps.AdmissionsConfig',
+    'fees.apps.FeesConfig',
+    'examinations.apps.ExaminationsConfig',
+    'reception.apps.ReceptionConfig',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +53,7 @@ ROOT_URLCONF = 'erp_core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -117,7 +114,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+
+# Media files (User uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -125,11 +128,18 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Media files (uploads) configuration
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Encryption Key (इसे गुप्त रखें)
+# यहाँ पर अपनी बनाई हुई नई KEY पेस्ट करें
+FIELD_ENCRYPTION_KEY = 'DIzgZ1KDyZgfgYzAeJM2pt6Pv6UYKn292SZgQFhRarU='
 
 
-# Login/Logout Redirect URLs
-LOGIN_REDIRECT_URL = '/academics/dashboard/'
-LOGOUT_REDIRECT_URL = '/login/'
+# Unfold Admin Theme Settings
+UNFOLD = {
+    "SITE_TITLE": "College ERP",
+    "SITE_HEADER": "My College ERP Administration",
+    "SITE_SYMBOL": "school",
+}
+
+LOGIN_REDIRECT_URL = '/faculty/dashboard/'
+LOGIN_URL = '/faculty/login/'
+LOGOUT_REDIRECT_URL = '/'

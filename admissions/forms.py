@@ -1,44 +1,52 @@
 from django import forms
-# बदला हुआ: Subject को academics.models से इम्पोर्ट किया
 from .models import AdmissionApplication
-from academics.models import Subject
 from core.models import College
+from fees.models import Course
 
 class AdmissionApplicationForm(forms.ModelForm):
     college = forms.ModelChoiceField(
         queryset=College.objects.all(),
-        empty_label="--- Select a College ---",
-        widget=forms.Select(attrs={'class': 'form-select'})
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_college'})
     )
-
-    # Major और Minor सब्जेक्ट्स के लिए नए फील्ड्स
-    major_subjects = forms.ModelMultipleChoiceField(
-        queryset=Subject.objects.filter(subject_type='MAJOR'),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
-    minor_subjects = forms.ModelMultipleChoiceField(
-        queryset=Subject.objects.filter(subject_type='MINOR'),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
+    
+    course = forms.ModelChoiceField(
+        queryset=Course.objects.none(),
+        empty_label="--- Select a College First ---",
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_course'})
     )
 
     class Meta:
         model = AdmissionApplication
-        # 'major_subjects' और 'minor_subjects' को लिस्ट में जोड़ा गया
         fields = [
-            'college', 'samarth_registration_no', 'full_name', 'father_name', 
-            'mother_name', 'date_of_birth', 'mobile_number', 'category', 
-            'course_enrolled', 'major_subjects', 'minor_subjects'
+            'college', 'course', 'samarth_registration_no', 'full_name', 'father_name', 
+            'mother_name', 'date_of_birth', 'contact_number', 'whatsapp_number', 'category', 
+            'major_subjects', 'minor_subjects', 'total_subjects_count', 'manually_entered_subjects'
         ]
-
         widgets = {
             'samarth_registration_no': forms.TextInput(attrs={'class': 'form-control'}),
             'full_name': forms.TextInput(attrs={'class': 'form-control'}),
             'father_name': forms.TextInput(attrs={'class': 'form-control'}),
             'mother_name': forms.TextInput(attrs={'class': 'form-control'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'mobile_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'contact_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'whatsapp_number': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
-            'course_enrolled': forms.TextInput(attrs={'class': 'form-control'}),
+            'total_subjects_count': forms.NumberInput(attrs={'class': 'form-control'}),
+            'manually_entered_subjects': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['major_subjects'].required = False
+        self.fields['minor_subjects'].required = False
+        self.fields['total_subjects_count'].required = False
+        self.fields['manually_entered_subjects'].required = False
+
+        if 'college' in self.data:
+            try:
+                college_id = int(self.data.get('college'))
+                self.fields['course'].queryset = Course.objects.filter(college_id=college_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk:
+            self.fields['course'].queryset = self.instance.college.course_set.order_by('name')
